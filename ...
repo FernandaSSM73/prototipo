@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agencia Espacial - Director de Misión</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+background:#050816;
+color:white;
+overflow-x:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+header{
+padding:20px;
+background:#0b1224;
+border-bottom:2px solid #00d4ff;
+}
+
+h1{
+color:#00d4ff;
+}
+
+.container{
+padding:20px;
+display:grid;
+grid-template-columns:350px 1fr;
+gap:20px;
+}
+
+.panel{
+background:rgba(12,18,36,.92);
+padding:20px;
+border-radius:15px;
+border:1px solid #23345d;
+}
+
+select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+}
+
+button{
+background:#00d4ff;
+color:black;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin-top:20px;
+}
+
+.card{
+background:#13203f;
+padding:15px;
+border-radius:10px;
+}
+
+.bar{
+height:12px;
+background:#23345d;
+border-radius:20px;
+overflow:hidden;
+margin-top:8px;
+}
+
+.fill{
+height:100%;
+background:#00d4ff;
+}
+
+#solar{
+height:650px;
+position:relative;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.sun{
+position:absolute;
+width:80px;
+height:80px;
+border-radius:50%;
+background:gold;
+box-shadow:0 0 50px orange;
+}
+
+.orbit{
+position:absolute;
+border:1px dashed rgba(255,255,255,.15);
+border-radius:50%;
+}
+
+.p{
+position:absolute;
+border-radius:50%;
+top:-10px;
+left:50%;
+transform:translateX(-50%);
+}
+
+.orbit1{
+width:180px;
+height:180px;
+animation:spin 8s linear infinite;
+}
+
+.orbit2{
+width:300px;
+height:300px;
+animation:spin 15s linear infinite;
+}
+
+.orbit3{
+width:450px;
+height:450px;
+animation:spin 25s linear infinite;
+}
+
+.earth{
+width:18px;
+height:18px;
+background:#3498db;
+}
+
+.mars{
+width:16px;
+height:16px;
+background:#e74c3c;
+}
+
+.jupiter{
+width:30px;
+height:30px;
+background:#d4a373;
+}
+
+@keyframes spin{
+from{
+transform:rotate(0deg);
+}
+to{
+transform:rotate(360deg);
+}
+}
+
+#ship{
+font-size:30px;
+position:absolute;
+bottom:50px;
+left:50px;
+transition:all 3s ease;
+}
+
+#log{
+margin-top:20px;
+height:220px;
+overflow:auto;
+background:black;
+padding:10px;
+border-radius:10px;
+font-size:14px;
+}
+
+.success{
+color:#00ff99;
+}
+
+.warning{
+color:#ffd857;
+}
+
+.danger{
+color:#ff6b6b;
+}
+
+@media(max-width:1000px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<header>
+<h1>🚀 Agencia Espacial: Director de Misión</h1>
+</header>
+
+<div class="container">
+
+<div class="panel">
+
+<h2>Planificador de misión</h2>
+
+<label>Destino</label>
+
+<select id="destino">
+<option value="20">Luna</option>
+<option value="35">Marte</option>
+<option value="45">Europa</option>
+<option value="40">Asteroide</option>
+</select>
+
+<label>Cohete</label>
+
+<select id="cohete">
+<option value="15">Falcon 9</option>
+<option value="25">Falcon Heavy</option>
+<option value="35">Starship</option>
+</select>
+
+<label>Instrumentos</label>
+
+<select id="instrumentos">
+<option value="10">Cámara</option>
+<option value="20">Espectrómetro</option>
+<option value="30">Laboratorio</option>
+</select>
+
+<button onclick="crearMision()">
+Diseñar misión
+</button>
+
+<button onclick="simular()">
+Simular misión
+</button>
+
+<div class="stats">
+
+<div class="card">
+Presupuesto
+<div class="bar">
+<div id="p1" class="fill"></div>
+</div>
+</div>
+
+<div class="card">
+Energía
+<div class="bar">
+<div id="p2" class="fill"></div>
+</div>
+</div>
+
+<div class="card">
+Masa
+<div class="bar">
+<div id="p3" class="fill"></div>
+</div>
+</div>
+
+<div class="card">
+Éxito
+<div class="bar">
+<div id="p4" class="fill"></div>
+</div>
+</div>
+
+</div>
+
+<div id="log"></div>
+
+</div>
+
+<div class="panel">
+
+<div id="solar">
+
+<div class="sun"></div>
+
+<div class="orbit orbit1">
+<div class="p earth"></div>
+</div>
+
+<div class="orbit orbit2">
+<div class="p mars"></div>
+</div>
+
+<div class="orbit orbit3">
+<div class="p jupiter"></div>
+</div>
+
+<div id="ship">🚀</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let presupuesto=100;
+let energia=100;
+let masa=100;
+let exito=50;
+
+function actualizar(){
+
+p1.style.width=presupuesto+"%";
+p2.style.width=energia+"%";
+p3.style.width=masa+"%";
+p4.style.width=exito+"%";
+
+}
+
+function log(t,c){
+
+document.getElementById("log").innerHTML +=
+`<div class="${c}">${t}</div>`;
+
+}
+
+function crearMision(){
+
+const d=parseInt(destino.value);
+const c=parseInt(cohete.value);
+const i=parseInt(instrumentos.value);
+
+presupuesto=
+100-(d+c+i);
+
+energia=
+100-(d/2);
+
+masa=
+100-c;
+
+exito=
+50+c+i-d/2;
+
+actualizar();
+
+log("✅ Misión diseñada correctamente",
+"success");
+
+}
+
+function simular(){
+
+let ship=
+document.getElementById("ship");
+
+ship.style.left="70%";
+ship.style.top="30%";
+
+log("🚀 Lanzamiento realizado",
+"success");
+
+setTimeout(()=>{
+
+const eventos=[
+
+{
+t:"☀️ Tormenta solar",
+v:-15,
+c:"danger"
+},
+
+{
+t:"📡 Comunicación perfecta",
+v:10,
+c:"success"
+},
+
+{
+t:"☄️ Micrometeoritos",
+v:-10,
+c:"warning"
+},
+
+{
+t:"🔬 Hallazgo científico",
+v:15,
+c:"success"
+}
+
+];
+
+let e=
+eventos[
+Math.floor(
+Math.random()*eventos.length
+)
+];
+
+exito+=e.v;
+
+exito=Math.max(
+0,
+Math.min(
+100,
+exito
+)
+);
+
+log(e.t,e.c);
+
+actualizar();
+
+setTimeout(()=>{
+
+if(exito>=75){
+
+log(
+"🏆 MISIÓN EXITOSA",
+"success"
+);
+
+}else{
+
+log(
+"❌ MISIÓN FALLIDA",
+"danger"
+);
+
+}
+
+},1000);
+
+},3000);
+
+}
+
+actualizar();
+
+const canvas=
+document.getElementById("stars");
+
+const ctx=
+canvas.getContext("2d");
+
+function resize(){
+
+canvas.width=
+window.innerWidth;
+
+canvas.height=
+window.innerHeight;
+
+}
+
+resize();
+
+window.onresize=resize;
+
+let stars=[];
+
+for(let i=0;i<300;i++){
+
+stars.push({
+
+x:Math.random()*innerWidth,
+
+y:Math.random()*innerHeight,
+
+r:Math.random()*2
+
+});
+
+}
+
+function animate(){
+
+ctx.clearRect(
+0,0,
+canvas.width,
+canvas.height
+);
+
+ctx.fillStyle="white";
+
+stars.forEach(s=>{
+
+ctx.beginPath();
+
+ctx.arc(
+s.x,
+s.y,
+s.r,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+s.y+=0.3;
+
+if(s.y>canvas.height){
+
+s.y=0;
+
+}
+
+});
+
+requestAnimationFrame(
+animate
+);
+
+}
+
+animate();
+
+</script>
+</body>
+</html>
